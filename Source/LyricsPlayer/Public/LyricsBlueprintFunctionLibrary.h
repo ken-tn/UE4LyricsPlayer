@@ -7,47 +7,48 @@
 #include "LyricsBlueprintFunctionLibrary.generated.h"
 
 USTRUCT(BlueprintType)
-struct FLyricWord {
+struct FLyricWord
+{
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float Time;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FString Word;
 };
 
 USTRUCT(BlueprintType)
-struct FLyricLines {
+struct FLyricLine
+{
 	GENERATED_BODY()
 
-	UPROPERTY()
-		int32 LineNumber;
-
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TArray<FLyricWord> Words;
 };
 
 USTRUCT(BlueprintType)
-struct FLyricTag {
+struct FLyricTag
+{
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FString Tag;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FString Value;
 };
 
 USTRUCT(BlueprintType)
-struct FLyricFileStruct {
+struct FLyricFileStruct
+{
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TArray<FLyricTag> Tags;
 
-	UPROPERTY()
-		FLyricLines Lines;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TArray<FLyricLine> Lines;
 };
 
 /**
@@ -59,8 +60,14 @@ class LYRICSPLAYER_API ULyricsBlueprintFunctionLibrary : public UBlueprintFuncti
 	GENERATED_BODY()
 
 	UFUNCTION()
-		FLyricLines FormatLyricLine(FString line);
+		static float LRCTimeToSeconds(FString Time);
+
+	UFUNCTION()
+		static FLyricLine FormatLyricLine(FString Line);
 
 	UFUNCTION(BlueprintCallable, Category = "LyricsConverter")
-		static void ParseLyrics(const FString& ELRCFile);
+		static void ConvertLyricsByDelay(FLyricFileStruct& LyricStruct);
+
+	UFUNCTION(BlueprintCallable, Category = "LyricsConverter")
+		static void ParseLyrics(const FString ELRCFile, FLyricFileStruct &LyricStruct);
 };
