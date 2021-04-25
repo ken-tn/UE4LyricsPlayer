@@ -2,6 +2,7 @@
 
 
 #include "LyricsBlueprintFunctionLibrary.h"
+#include "Components/AudioComponent.h"
 
 float ULyricsBlueprintFunctionLibrary::LRCTimeToSeconds(FString Time)
 {
@@ -56,11 +57,41 @@ FLyricLine ULyricsBlueprintFunctionLibrary::FormatLyricLine(FString Line)
 	return LyricLine;
 }
 
-void ULyricsBlueprintFunctionLibrary::ConvertLyricsByDelay(FLyricFileStruct& LyricStruct)
-{
-	// Take each word, subtract time difference from previous word
-	// Store difference
-	// Replace all times with delay instead
+void ULyricsBlueprintFunctionLibrary::IsLyricHit(const USoundWave* PlayingSoundWave, const float PlaybackPercent, const FLyricFileStruct LyricStruct, UPARAM(ref) int& LineCounter, UPARAM(ref) int& WordCounter, bool& Hit, FString& WordString) {
+	//UE_LOG(LogTemp, Warning, TEXT("Line: %d \nWord: %d\nWords In Line: %d"), LineCounter, WordCounter, LyricStruct.Lines[LineCounter].Words.Num())
+	// We've reached final line
+	Hit = false;
+	if (LyricStruct.Lines.Num()-1 < LineCounter)
+	{
+		LineCounter = 0;
+
+		return;
+	}
+	else {
+		TArray<FLyricWord> Line = LyricStruct.Lines[LineCounter].Words;
+
+		// We've reached the final word
+		if (Line.Num()-1 < WordCounter)
+		{
+			WordCounter = 0;
+			++LineCounter;
+
+			return;
+		}
+		else
+		{
+			// Play a word
+			float CurrentTime = PlayingSoundWave->Duration * PlaybackPercent;
+			FLyricWord CurrentWord = Line[WordCounter];
+
+			if (CurrentTime > CurrentWord.Time)
+			{
+				++WordCounter;
+				Hit = true;
+				WordString = CurrentWord.Word;
+			}
+		}
+	}
 }
 
 void ULyricsBlueprintFunctionLibrary::ParseLyrics(const FString ELRCFile, FLyricFileStruct& LyricStruct)
