@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "VisualizerComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "Components/AudioComponent.h"
@@ -36,7 +35,7 @@ bool UVisualizerComponent::CreateBars()
 		FVector BarLocation = FVector(0.f, i * BarDistance, 0.f) + OriginalTransform.GetLocation();
 		AActor* BarActor = SpawnCube(FTransform(OriginalTransform.GetRotation(), BarLocation, OriginalTransform.GetScale3D()));
 
-		ActorFrequency.Add(BarActor, FrequencySpacing * i);
+		ActorFrequency.Add(BarActor, ((MaxFrequency - MinFrequency) / NumberOfBars) * i + MinFrequency);
 	}
 
 	return true;
@@ -44,43 +43,56 @@ bool UVisualizerComponent::CreateBars()
 
 void UVisualizerComponent::OnBeginPlay()
 {
-	HasFFT = AmbientSound->GetAudioComponent()->HasCookedFFTData();
-	OriginalTransform = Start->GetActorTransform();
-	if (CreateBars()) {
-		for (auto& Elem : ActorFrequency) {
-			Transforms.Add(Elem.Key->GetActorTransform());
+	if (IsValid(AmbientSound) && IsValid(Mesh) && IsValid(Material))
+	{
+		// Set default properties
+		HasFFT = AmbientSound->GetAudioComponent()->HasCookedFFTData();
+		OriginalTransform = Start->GetActorTransform();
+
+		// Set default transforms
+		if (CreateBars()) {
+			for (auto& Elem : ActorFrequency) {
+				Transforms.Add(Elem.Key->GetActorTransform());
+			}
 		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("VISUALIZER HAS INVALID SETTINGS"));
 	}
 }
 
 void UVisualizerComponent::OnTick()
 {
 	if (HasFFT) {
-		TArray<float> FrequencyValues;
 		TArray<AActor*> Actors;
+		TArray<float> FrequenciesToGet;
 		TArray<FSoundWaveSpectralData> SpectralDataArray;
 
-		ActorFrequency.GenerateValueArray(FrequencyValues);
 		ActorFrequency.GenerateKeyArray(Actors);
+		ActorFrequency.GenerateValueArray(FrequenciesToGet);
 
-		if (AmbientSound->GetAudioComponent()->GetCookedFFTData(FrequencyValues, SpectralDataArray)) {
-			int index = 0;
-			for (auto& Elem : SpectralDataArray) {
-				FTransform BaseTransform = Transforms[index];
-				float shiftedZ = Elem.NormalizedMagnitude * Height;
+		if (AmbientSound->GetAudioComponent()->GetCookedFFTData(FrequenciesToGet, SpectralDataArray)) {
+			for (int i = 0; i < SpectralDataArray.Num(); i++)
+			{
+				FTransform DefaultTransform = Transforms[i];
+				float shiftedZ = (SpectralDataArray[i].NormalizedMagnitude) * Height; // Magnitude / 5 OR NormalizedMagnitude
+				if (shiftedZ > Height)
+				{
+					shiftedZ = Height;
+				}
 
 				// Resize the bar
-				FVector Scale = BaseTransform.GetScale3D();
+				FVector Scale = DefaultTransform.GetScale3D();
 				Scale = Scale + FVector(0.f, 0.f, shiftedZ);
 
 				// Shift the bar up to prevent ground sinking
-				FVector Location = BaseTransform.GetLocation();
+				FVector Location = DefaultTransform.GetLocation();
 				Location = FVector(Location.X, Location.Y, shiftedZ * (Scale.Y * 1000.f) + Location.Z);
 
-				FTransform NewTransform = FTransform(BaseTransform.GetRotation(), Location, Scale);
+				FTransform NewTransform = FTransform(DefaultTransform.GetRotation(), Location, Scale);
 
-				Actors[index]->SetActorTransform(NewTransform);
-				index++;
+				Actors[i]->SetActorTransform(NewTransform);
 			}
 		}
 	}

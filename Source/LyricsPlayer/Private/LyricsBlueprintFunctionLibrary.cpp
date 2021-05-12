@@ -67,7 +67,8 @@ void ULyricsBlueprintFunctionLibrary::IsLyricHit(const USoundWave* PlayingSoundW
 
 		return;
 	}
-	else {
+	else
+	{
 		TArray<FLyricWord> Line = LyricStruct.Lines[LineCounter].Words;
 
 		// We've reached the final word
@@ -87,9 +88,12 @@ void ULyricsBlueprintFunctionLibrary::IsLyricHit(const USoundWave* PlayingSoundW
 			if (CurrentTime > CurrentWord.Time)
 			{
 				++WordCounter;
-				Hit = true;
 				WordString = CurrentWord.Word;
+
+				Hit = true;
 			}
+
+			return;
 		}
 	}
 }
