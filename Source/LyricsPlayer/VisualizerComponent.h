@@ -40,10 +40,13 @@ public:
 		float BarDistance = 15.f;
 
 	UPROPERTY(EditAnywhere, Category = "VisualizerSettings")
-		float FrequencySpacing = 50.f;
+		float MinFrequency = 500.f;
 
 	UPROPERTY(EditAnywhere, Category = "VisualizerSettings")
-		float Height = 20.f;
+		float MaxFrequency = 10000.f;
+
+	UPROPERTY(EditAnywhere, Category = "VisualizerSettings")
+		float Height = 1.f;
 
 	UPROPERTY(VisibleAnywhere, Category = "VisualizerStats")
 		TMap<AActor*, float> ActorFrequency;
