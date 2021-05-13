@@ -12,3 +12,5 @@ Saved
 *.suo
 *.xcodeproj
 *.xcworkspace
+Content/Sounds/testsound.uasset
+Content/Materials/Neon.uasset
