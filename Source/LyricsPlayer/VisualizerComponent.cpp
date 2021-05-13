@@ -17,8 +17,8 @@ UVisualizerComponent::UVisualizerComponent()
 
 AActor* UVisualizerComponent::SpawnCube(FTransform SpawnTransform)
 {
-	FActorSpawnParameters SpawnInfo;
-
+	FActorSpawnParameters SpawnInfo; // Placeholder
+	
 	AStaticMeshActor* NewCube = GetWorld()->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), SpawnTransform, SpawnInfo);
 	NewCube->SetMobility(EComponentMobility::Movable);
 
@@ -82,17 +82,11 @@ void UVisualizerComponent::OnTick()
 					shiftedZ = Height;
 				}
 
-				// Resize the bar
-				FVector Scale = DefaultTransform.GetScale3D();
-				Scale = Scale + FVector(0.f, 0.f, shiftedZ);
+				// Get new size
+				FVector NewScale = DefaultTransform.GetScale3D();
+				NewScale = NewScale + FVector(0.f, 0.f, shiftedZ);
 
-				// Shift the bar up to prevent ground sinking
-				FVector Location = DefaultTransform.GetLocation();
-				Location = FVector(Location.X, Location.Y, shiftedZ * (Scale.Y * 1000.f) + Location.Z);
-
-				FTransform NewTransform = FTransform(DefaultTransform.GetRotation(), Location, Scale);
-
-				Actors[i]->SetActorTransform(NewTransform);
+				Actors[i]->SetActorTransform(FTransform(DefaultTransform.GetRotation(), DefaultTransform.GetLocation(), NewScale));
 			}
 		}
 	}
