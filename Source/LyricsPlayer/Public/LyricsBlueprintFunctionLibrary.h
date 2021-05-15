@@ -59,16 +59,11 @@ class LYRICSPLAYER_API ULyricsBlueprintFunctionLibrary : public UBlueprintFuncti
 {
 	GENERATED_BODY()
 
-	UFUNCTION()
-		static float LRCTimeToSeconds(FString Time);
+	static float LRCTimeToSeconds(FString Time);
+	static FLyricLine FormatLyricLine(FString Line);
 
-	UFUNCTION()
-		static FLyricLine FormatLyricLine(FString Line);
-
-	UFUNCTION(BlueprintCallable)
-		static void IsLyricHit(const USoundWave* PlayingSoundWave, const float PlaybackPercent, const FLyricFileStruct LyricStruct, UPARAM(ref) int& LineCounter, UPARAM(ref) int& WordCounter, bool& Hit, FString& WordString);
-
+public:
 	UFUNCTION(BlueprintCallable, Category = "LyricsConverter")
-		static void ParseLyrics(const FString ELRCFile, FLyricFileStruct &LyricStruct);
+		static void ParseLyrics(const FString ELRCFile, FLyricFileStruct& LyricStruct);
 
 };
