@@ -9,7 +9,7 @@
 ALyricActor::ALyricActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 }
 
@@ -19,9 +19,22 @@ void ALyricActor::BeginPlay()
 	Super::BeginPlay();
 
 	OnWordReachedDelegate.AddDynamic(this, &ALyricActor::OnWordReached);
+}
+
+// Called every frame
+void ALyricActor::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
+void ALyricActor::Play()
+{
+	ULyricsBlueprintFunctionLibrary::ParseLyrics(Lyrics, LyricStruct);
 
 	if (IsValid(AmbientSound))
 	{
+		bCanPlay = true;
 		UAudioComponent* AudioComponent = AmbientSound->GetAudioComponent();
 		AudioComponent->OnAudioPlaybackPercent.Clear();
 		AudioComponent->OnAudioPlaybackPercent.AddDynamic(this, &ALyricActor::FOnAudioPlaybackPercent);
@@ -33,24 +46,18 @@ void ALyricActor::BeginPlay()
 	}
 }
 
-// Called every frame
-void ALyricActor::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 // Bound to OnAudioPlaybackPercent
 void ALyricActor::FOnAudioPlaybackPercent(const USoundWave* PlayingSoundWave, const float PlaybackPercent)
 {
 	// We've gone past the end of a song, reset if we start another one
-	if (LyricStruct.Lines.Num() - 1 < LineCounter && PlaybackPercent < 0.001)
+	if (LyricStruct.Lines.Num() - 1 < LineCounter)
 	{
 		LineCounter = 0;
+		bCanPlay = false;
 
 		return;
 	}
-	else
+	else if (bCanPlay)
 	{
 		TArray<FLyricWord> Line = LyricStruct.Lines[LineCounter].Words;
 

@@ -21,53 +21,56 @@ public:
 	/*
 	* PROPERTIES
 	*/
-	UPROPERTY()
-		AActor* Start = GetOwner();
+	TMap<AActor*, float> ActorFrequency;
+	bool HasFFT;
+	TArray<FTransform> Transforms;
+	FTransform OriginalTransform;
+	AActor* Start = GetOwner();
 
-	UPROPERTY(EditAnywhere, Category = "VisualizerSettings")
+	UPROPERTY(EditAnywhere, Category = "Appearance")
 		UStaticMesh* Mesh;
 
-	UPROPERTY(EditAnywhere, Category = "VisualizerSettings")
+	UPROPERTY(EditAnywhere, Category = "Appearance")
 		UMaterialInstanceConstant* Material;
 
-	UPROPERTY(EditAnywhere, Category = "VisualizerSettings")
+	UPROPERTY(EditAnywhere, Category = "Appearance")
+		FLinearColor ColorTop = FLinearColor(1.f, 1.f, 1.f, 0.f);
+
+	UPROPERTY(EditAnywhere, Category = "Appearance")
+		FLinearColor ColorBottom = FLinearColor(1.f, 0.f, 0.f, 0.f);
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
 		AAmbientSound* AmbientSound;
 
-	UPROPERTY(EditAnywhere, Category = "VisualizerSettings")
+	UPROPERTY(EditAnywhere, Category = "Visual Settings")
 		int NumberOfBars = 300;
 
-	UPROPERTY(EditAnywhere, Category = "VisualizerSettings")
+	UPROPERTY(EditAnywhere, Category = "Visual Settings")
 		float BarDistance = 15.f;
 
-	UPROPERTY(EditAnywhere, Category = "VisualizerSettings")
-		float MinFrequency = 500.f;
-
-	UPROPERTY(EditAnywhere, Category = "VisualizerSettings")
-		float MaxFrequency = 10000.f;
-
-	UPROPERTY(EditAnywhere, Category = "VisualizerSettings")
+	UPROPERTY(EditAnywhere, Category = "Visual Settings")
 		float Height = 1.f;
 
-	UPROPERTY(VisibleAnywhere, Category = "VisualizerStats")
-		TMap<AActor*, float> ActorFrequency;
+	UPROPERTY(EditAnywhere, Category = "Smoothing")
+		float MaxDistance = 5000.f;
 
-	UPROPERTY()
-		bool HasFFT;
+	UPROPERTY(EditAnywhere, Category = "Smoothing")
+		float MinWeight = 0.1f;
 
-	UPROPERTY()
-		TArray<FTransform> Transforms;
+	UPROPERTY(EditAnywhere, Category = "Smoothing")
+		float MaxWeight = 0.6f;
 
-	UPROPERTY()
-		FTransform OriginalTransform;
+	UPROPERTY(EditAnywhere, Category = "Frequencies")
+		float MinFrequency = 20.f;
+
+	UPROPERTY(EditAnywhere, Category = "Frequencies")
+		float MaxFrequency = 20000.f;
 
 	/*
 	* FUNCTIONS
 	*/
-	UFUNCTION()
-		AActor* SpawnCube(FTransform SpawnTransform);
-
-	UFUNCTION()
-		bool CreateBars();
+	AActor* SpawnCube(FTransform SpawnTransform);
+	bool CreateBars();
 
 	UFUNCTION(BlueprintCallable, Category = "VisualizerSupport")
 		void OnBeginPlay();

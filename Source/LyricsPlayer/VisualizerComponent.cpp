@@ -1,5 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "Kismet/KismetMathLibrary.h"
 #include "VisualizerComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "Components/AudioComponent.h"
@@ -24,7 +25,10 @@ AActor* UVisualizerComponent::SpawnCube(FTransform SpawnTransform)
 
 	UStaticMeshComponent* StaticMesh = NewCube->GetStaticMeshComponent();
 	StaticMesh->SetStaticMesh(Mesh);
-	StaticMesh->SetMaterial(0, Material);
+
+	UMaterialInstanceDynamic* DynamicMaterial = StaticMesh->CreateDynamicMaterialInstance(0, Material, FName("MaterialInstanceDynamic"));
+	DynamicMaterial->SetVectorParameterValue(FName("ColorTop"), ColorTop);
+	DynamicMaterial->SetVectorParameterValue(FName("ColorBottom"), ColorBottom);
 
 	return NewCube;
 }
@@ -50,8 +54,10 @@ void UVisualizerComponent::OnBeginPlay()
 		OriginalTransform = Start->GetActorTransform();
 
 		// Set default transforms
-		if (CreateBars()) {
-			for (auto& Elem : ActorFrequency) {
+		if (ActorFrequency.Num() == 0 && CreateBars())
+		{
+			for (auto& Elem : ActorFrequency)
+			{
 				Transforms.Add(Elem.Key->GetActorTransform());
 			}
 		}
@@ -72,15 +78,20 @@ void UVisualizerComponent::OnTick()
 		ActorFrequency.GenerateKeyArray(Actors);
 		ActorFrequency.GenerateValueArray(FrequenciesToGet);
 
-		if (AmbientSound->GetAudioComponent()->GetCookedFFTData(FrequenciesToGet, SpectralDataArray)) {
+		if (AmbientSound->GetAudioComponent()->GetCookedFFTData(FrequenciesToGet, SpectralDataArray))
+		{
+			// Apply smoothing
+			float previousValue = SpectralDataArray[0].NormalizedMagnitude;
+			for (FSoundWaveSpectralData& elem : SpectralDataArray)
+			{
+				previousValue = UKismetMathLibrary::DynamicWeightedMovingAverage_Float(elem.NormalizedMagnitude, previousValue, MaxDistance, MinWeight, MaxWeight);
+				elem.NormalizedMagnitude = previousValue;
+			}
+
 			for (int i = 0; i < SpectralDataArray.Num(); i++)
 			{
 				FTransform DefaultTransform = Transforms[i];
-				float shiftedZ = (SpectralDataArray[i].NormalizedMagnitude) * Height; // Magnitude / 5 OR NormalizedMagnitude
-				if (shiftedZ > Height)
-				{
-					shiftedZ = Height;
-				}
+				float shiftedZ = SpectralDataArray[i].NormalizedMagnitude * Height;
 
 				// Get new size
 				FVector NewScale = DefaultTransform.GetScale3D();

@@ -22,6 +22,7 @@ public:
 
 	int LineCounter = 0;
 	int WordCounter = 0;
+	bool bCanPlay = true;
 	
 	UFUNCTION()
 		void OnWordReached(const FString Word);
@@ -29,10 +30,10 @@ public:
 	UPROPERTY(BlueprintAssignable)
 		FStringDelegate OnWordReachedDelegate;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY()
 		FLyricFileStruct LyricStruct;
 
-	UPROPERTY(EditAnywhere, Category = "Lyrics")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lyrics")
 		FString Lyrics;
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
@@ -40,6 +41,9 @@ public:
 
 	UFUNCTION()
 		void FOnAudioPlaybackPercent(const USoundWave* PlayingSoundWave, const float PlaybackPercent);
+
+	UFUNCTION(BlueprintCallable)
+		void Play();
 
 protected:
 	// Called when the game starts or when spawned
