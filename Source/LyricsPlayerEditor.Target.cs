@@ -7,8 +7,9 @@ public class LyricsPlayerEditorTarget : TargetRules
 {
 	public LyricsPlayerEditorTarget(TargetInfo Target) : base(Target)
 	{
-		Type = TargetType.Editor;
-		DefaultBuildSettings = BuildSettingsVersion.V2;
-		ExtraModuleNames.Add("LyricsPlayer");
+        Type = TargetType.Editor;
+        DefaultBuildSettings = BuildSettingsVersion.V5;
+        IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_5;
+        ExtraModuleNames.Add("LyricsPlayer");
 	}
 }

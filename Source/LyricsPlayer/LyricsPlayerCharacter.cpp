@@ -1,7 +1,6 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
 #include "LyricsPlayerCharacter.h"
-#include "HeadMountedDisplayFunctionLibrary.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -73,14 +72,14 @@ void ALyricsPlayerCharacter::SetupPlayerInputComponent(class UInputComponent* Pl
 	PlayerInputComponent->BindTouch(IE_Released, this, &ALyricsPlayerCharacter::TouchStopped);
 
 	// VR headset functionality
-	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &ALyricsPlayerCharacter::OnResetVR);
+	// PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &ALyricsPlayerCharacter::OnResetVR);
 }
 
 
-void ALyricsPlayerCharacter::OnResetVR()
-{
-	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
-}
+//void ALyricsPlayerCharacter::OnResetVR()
+//{
+//	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
+//}
 
 void ALyricsPlayerCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
 {
