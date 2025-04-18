@@ -1,5 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "VisualizerComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "VisualizerComponent.h"
 #include "Engine/StaticMeshActor.h"
@@ -84,7 +85,9 @@ void UVisualizerComponent::OnTick()
 			float previousValue = SpectralDataArray[0].NormalizedMagnitude;
 			for (FSoundWaveSpectralData& elem : SpectralDataArray)
 			{
-				previousValue = UKismetMathLibrary::DynamicWeightedMovingAverage_Float(elem.NormalizedMagnitude, previousValue, MaxDistance, MinWeight, MaxWeight);
+				// highlight vocals by increasing size of higher freqs.
+				float vocalMultiplier = FMath::Min(23.0, FMath::Max(1.f, elem.FrequencyHz / 250));
+				previousValue = UKismetMathLibrary::DynamicWeightedMovingAverage_Float(elem.NormalizedMagnitude * vocalMultiplier, previousValue, MaxDistance, MinWeight, MaxWeight);
 				elem.NormalizedMagnitude = previousValue;
 			}
 

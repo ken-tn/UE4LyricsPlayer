@@ -1,9 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "LyricActor.h"
 #include "LyricsBlueprintFunctionLibrary.h"
 #include "Components/AudioComponent.h"
-
-#include "LyricActor.h"
 
 // Sets default values
 ALyricActor::ALyricActor()
